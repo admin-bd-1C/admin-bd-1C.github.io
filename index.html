@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Mini App</title>
-    <script async src="https://telegram.org/js/telegram-widget.js?7"
-            data-telegram-login="mafyan_Authentication_bot"
-            data-size="large"
-            data-auth-url="https://admin-bd-1c.github.io/admin-bd-1C.github.io/auth.html"
-            data-request-access="write"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div id="login">
         <h2>Авторизация через Telegram</h2>
-        <div id="telegram-login"></div>
+        <button onclick="authorizeUser()">Войти</button>
     </div>
 
     <div id="content" style="display:none;">
@@ -21,47 +17,40 @@
     </div>
 
     <script>
-        function onAuth(user) {
-            const phoneNumber = user.phone_number; // Номер телефона пользователя
+        function authorizeUser() {
+            let tg = window.Telegram.WebApp;
+            tg.expand();  // Разворачиваем мини-приложение
 
-            // Сохраняем номер телефона в localStorage
-            localStorage.setItem('phone_number', phoneNumber);
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                let user = tg.initDataUnsafe.user;
+                let userId = user.id; // Telegram ID (номер телефона нельзя получить)
 
-            // Скрываем форму и показываем контент
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
+                // Сохраняем в localStorage
+                localStorage.setItem('user_id', userId);
 
-            // Открываем сайт mafyan.ru
-            const iframe = document.getElementById('websiteFrame');
-            iframe.src = 'https://mafyan.ru';
-
-            // Автозаполнение логина и пароля на сайте
-            iframe.onload = function() {
-                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                iframeDocument.getElementById('username').value = phoneNumber;
-                iframeDocument.getElementById('password').value = 'default_password';
-            };
-        }
-
-        // Проверяем, есть ли сохраненный номер телефона
-        window.onload = function() {
-            const savedPhoneNumber = localStorage.getItem('phone_number');
-
-            if (savedPhoneNumber) {
-                // Если номер есть, скрываем форму и показываем контент
+                // Переключаемся на контент
                 document.getElementById('login').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
 
-                // Открываем сайт mafyan.ru
-                const iframe = document.getElementById('websiteFrame');
-                iframe.src = 'https://mafyan.ru';
+                // Открываем сайт mafyan.ru с параметром user_id
+                let iframe = document.getElementById('websiteFrame');
+                iframe.src = `https://mafyan.ru?user_id=${userId}`;
+            } else {
+                alert("Ошибка: Telegram не передал данные пользователя.");
+            }
+        }
 
-                // Автозаполнение логина и пароля на сайте
-                iframe.onload = function() {
-                    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                    iframeDocument.getElementById('username').value = savedPhoneNumber;
-                    iframeDocument.getElementById('password').value = 'default_password';
-                };
+        // Проверяем сохранённые данные при загрузке страницы
+        window.onload = function() {
+            let savedUserId = localStorage.getItem('user_id');
+
+            if (savedUserId) {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+                // Открываем сайт mafyan.ru с user_id
+                let iframe = document.getElementById('websiteFrame');
+                iframe.src = `https://mafyan.ru?user_id=${savedUserId}`;
             }
         };
     </script>
