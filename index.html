@@ -8,7 +8,7 @@
 </head>
 <body>
     <div id="login">
-        <h2>Авторизация Тест</h2>
+        <h2>Авторизация через Telegram</h2>
         <button onclick="authorizeUser()">Войти</button>
     </div>
 
@@ -17,6 +17,15 @@
     </div>
 
     <script>
+        // Проверяем, загружен ли Telegram WebApp
+        window.onload = function() {
+            if (typeof window.Telegram !== "undefined" && window.Telegram.WebApp) {
+                console.log("Telegram WebApp загружен!", window.Telegram.WebApp.initDataUnsafe);
+            } else {
+                console.error("Telegram WebApp не загружен!");
+            }
+        };
+
         function authorizeUser() {
             let tg = window.Telegram.WebApp;
             tg.expand();  // Разворачиваем мини-приложение
@@ -39,20 +48,6 @@
                 alert("Ошибка: Telegram не передал данные пользователя.");
             }
         }
-
-        // Проверяем сохранённые данные при загрузке страницы
-        window.onload = function() {
-            let savedUserId = localStorage.getItem('user_id');
-
-            if (savedUserId) {
-                document.getElementById('login').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-
-                // Открываем сайт mafyan.ru с user_id
-                let iframe = document.getElementById('websiteFrame');
-                iframe.src = `https://mafyan.ru?user_id=${savedUserId}`;
-            }
-        };
     </script>
 </body>
 </html>
