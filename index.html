@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App</title>
+    <script async src="https://telegram.org/js/telegram-widget.js?7"
+            data-telegram-login="mafyan_Authentication_bot"
+            data-size="large"
+            data-auth-url="https://admin-bd-1c.github.io/Telegram-Authentication/auth.html"
+            data-request-access="write"></script>
+</head>
+<body>
+    <div id="login">
+        <h2>Авторизация через Telegram</h2>
+        <div id="telegram-login"></div>
+    </div>
+
+    <div id="content" style="display:none;">
+        <iframe id="websiteFrame" src="" width="100%" height="500px"></iframe>
+    </div>
+
+    <script>
+        function onAuth(user) {
+            const phoneNumber = user.phone_number; // Номер телефона пользователя
+
+            // Сохраняем номер телефона в localStorage
+            localStorage.setItem('phone_number', phoneNumber);
+
+            // Скрываем форму и показываем контент
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            // Открываем сайт mafyan.ru
+            const iframe = document.getElementById('websiteFrame');
+            iframe.src = 'https://mafyan.ru';
+
+            // Автозаполнение логина и пароля на сайте
+            iframe.onload = function() {
+                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDocument.getElementById('username').value = phoneNumber;
+                iframeDocument.getElementById('password').value = 'default_password';
+            };
+        }
+
+        // Проверяем, есть ли сохраненный номер телефона
+        window.onload = function() {
+            const savedPhoneNumber = localStorage.getItem('phone_number');
+
+            if (savedPhoneNumber) {
+                // Если номер есть, скрываем форму и показываем контент
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+                // Открываем сайт mafyan.ru
+                const iframe = document.getElementById('websiteFrame');
+                iframe.src = 'https://mafyan.ru';
+
+                // Автозаполнение логина и пароля на сайте
+                iframe.onload = function() {
+                    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                    iframeDocument.getElementById('username').value = savedPhoneNumber;
+                    iframeDocument.getElementById('password').value = 'default_password';
+                };
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+// Получаем данные из URL
+const urlParams = new URLSearchParams(window.location.search);
+const userData = {
+    id: urlParams.get('id'),
+    first_name: urlParams.get('first_name'),
+    last_name: urlParams.get('last_name'),
+    username: urlParams.get('username'),
+    photo_url: urlParams.get('photo_url'),
+    auth_date: urlParams.get('auth_date'),
+    hash: urlParams.get('hash')
+};
+
+// Сохраняем данные в localStorage
+localStorage.setItem('userData', JSON.stringify(userData));
+
+// Перенаправляем пользователя
+window.location.href = 'https://mafyan.ru';
