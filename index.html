@@ -7,47 +7,38 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div id="login">
-        <h2>Авторизация через Telegram</h2>
-        <button onclick="authorizeUser()">Войти</button>
-    </div>
-
-    <div id="content" style="display:none;">
-        <iframe id="websiteFrame" src="" width="100%" height="500px"></iframe>
-    </div>
+    <h2>Ваш номер телефона:</h2>
+    <div id="phoneDisplay">Загрузка...</div>
 
     <script>
-        // Проверяем, загружен ли Telegram WebApp
-        window.onload = function() {
-            if (typeof window.Telegram !== "undefined" && window.Telegram.WebApp) {
-                console.log("Telegram WebApp загружен!", window.Telegram.WebApp.initDataUnsafe);
+        async function getPhoneNumber(userId) {
+            let response = await fetch(`http://127.0.0.1:5000/get_phone?user_id=${userId}`);
+            let data = await response.json();
+            
+            if (data.phone_number) {
+                console.log("Номер телефона:", data.phone_number);
+                document.getElementById("phoneDisplay").innerText = "Ваш номер: " + data.phone_number;
             } else {
-                console.error("Telegram WebApp не загружен!");
-            }
-        };
-
-        function authorizeUser() {
-            let tg = window.Telegram.WebApp;
-            tg.expand();  // Разворачиваем мини-приложение
-
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                let user = tg.initDataUnsafe.user;
-                let userId = user.id; // Telegram ID (номер телефона нельзя получить)
-
-                // Сохраняем в localStorage
-                localStorage.setItem('user_id', userId);
-
-                // Переключаемся на контент
-                document.getElementById('login').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-
-                // Открываем сайт mafyan.ru с параметром user_id
-                let iframe = document.getElementById('websiteFrame');
-                iframe.src = `https://mafyan.ru?user_id=${userId}`;
-            } else {
-                alert("Ошибка: Telegram не передал данные пользователя.");
+                console.error("Ошибка:", data.error);
+                document.getElementById("phoneDisplay").innerText = "Номер не найден";
             }
         }
+
+        // Запрашиваем user_id из Telegram WebApp
+        window.onload = function() {
+            if (window.Telegram.WebApp) {
+                let userId = window.Telegram.WebApp.initDataUnsafe.user?.id;
+                if (userId) {
+                    getPhoneNumber(userId);
+                } else {
+                    console.error("Не удалось получить user_id");
+                    document.getElementById("phoneDisplay").innerText = "Ошибка получения user_id";
+                }
+            } else {
+                console.error("Telegram WebApp не загружен");
+                document.getElementById("phoneDisplay").innerText = "WebApp не запущен";
+            }
+        };
     </script>
 </body>
 </html>
